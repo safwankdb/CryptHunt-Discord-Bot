@@ -21,8 +21,10 @@ if 'names.pkl' in os.listdir():
 if 'players.pkl' in os.listdir():
     with open('players.pkl', 'rb') as f:
         players = pickle.load(f)
-del players['safwankdb']
-del names['safwankdb']
+if 'safwankdb' in players.keys():
+    del players['safwankdb']
+if 'safwankdb' in names.keys():
+    del names['safwankdb']
 
 
 async def startQuiz(user):
@@ -69,12 +71,11 @@ async def sendQuestion(user, channel):
         await client.send_message(user, 'Nice try but you\'ve solved all questions :p')
         return
     await client.send_message(user, 'Question ' + str(players[user.name]))
-    await client.send_file(user, 'q' + str(players[user.name]) + '.png')
+    await client.send_file(user, 'q' + str(playersDB(user.name)) + '.png')
 
 
 @client.event
 async def on_message(message):
-    # we do not want the bot to reply to itself
     global def_channel
     global players
     if message.author == client.user:
@@ -107,7 +108,6 @@ async def on_message(message):
     elif message.content.lower() + str(playersDB(message.author.name)) in answers:
         players[message.author.name] += 1
         await client.send_message(message.author, 'Correct Answer.')
-        #players = sorted(players.items(), key=lambda x: x[1])
         with open('players.pkl', 'wb') as f:
             pickle.dump(players, f)
         with open('names.pkl', 'wb') as f:
@@ -115,8 +115,6 @@ async def on_message(message):
         if players[message.author.name] == 6:
             await client.send_message(message.author, 'Congratulations. You have completed the Crypt Hunt. Do come at tech orientation.')
             await client.send_message(message.author, 'Questions created by: Mohd Safwan and Arpit Aggrawal\nBot created by: Mohd Safwan\nTesting and Troubleshooting: WnCC tty11\n')
-            # if def_channel:
-            # await client.send_message(def_channel, '{0.author.mention} has completed the hunt.'.format(message))
         else:
             await client.send_message(message.author, 'Next question whenever you are ready.')
     elif 'chuda' in message.content.lower():
@@ -133,6 +131,8 @@ async def on_message(message):
         await client.send_message(message.author, 'get a shrink')
     elif 'love' in message.content.lower():
         await client.send_message(message.author, 'i have a boyfriend')
+    elif 'bsdk' in message.content.lower():
+        await client.send_message(message.author, 'i am sorry you feel that way')
 
     elif message.channel.name != 'general' and int(playersDB(message.author.name)) >= 0:
 
@@ -157,6 +157,9 @@ async def on_message(message):
                 await client.send_message(message.author, 'Congratulations, you got to base 2')
             elif message.content == '2201':
                 await client.send_message(message.author, 'Few people get to base 3. Lucky you. Focus on the text in image')
+            elif message.content.lower() == 'oprah':
+                await client.send_message(message.author, 'Wow, dude, how did you even get here?')
+
 
         elif playersDB(message.author.name) == 4:
             if message.content == '10^100':
@@ -181,7 +184,6 @@ async def on_message(message):
             if i in message.content.lower():
                 await client.ban(message.author)
                 await client.send_message(message.channel, message.author.name + ' has been banned for trying to cheat. :)')
-                # await client.unban(message.server, message.author)
     if message.author.name not in whitelist and message.channel.name == 'general':
         await client.delete_message(message)
 
